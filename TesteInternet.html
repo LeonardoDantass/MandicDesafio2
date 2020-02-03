@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>TesteInternet</title>
+    </head>
+    <body>
+        <div id="div-funcoes">
+            <h2>TesteInternet</h2>
+            <span>
+                <label>Log(em segundos):</label>
+                <br />
+                <input type="text" value="30" id="txt-segundos" />
+                <button type="button" onclick="setSegundos();">Salvar</button>
+            </span>
+        </div>
+        <ul id="ul-logs"></ul>
+
+        <script>
+            //Intervalo de execucao padrao
+var interval = setInterval(request, 30000);
+
+window.onload = function () {
+
+    request();
+};
+
+function setSegundos() {
+    let segs = parseInt(document.getElementById("txt-segundos").value.replace(/\D/g, ""));
+
+    if (segs > 0) {
+        clearInterval(interval);
+        interval = setInterval(request, (segs * 1000));
+    }
+    else {
+        document.getElementById("txt-segundos").value = "30";
+        setSegundos();
+    }
+}
+
+function printLog(log) {
+    return  log.ID + "[" + log.Data + "] Conexão: " + (log.Online ? "Online" : "Off-Line");
+}
+
+function setLog(log) {
+    let ul_log = document.getElementById("ul-logs");
+
+    document.getElementsByTagName("title")[0].innerText = "#" + log.ID + "# - Conexão: " + (log.Online ? "Online" : "Off-Line");
+
+    let html = "<li id='log-" + log.ID + "' data-json='"  + "'>" + printLog(log) + "</li>" + ul_log.innerHTML;
+
+    ul_log.innerHTML = html;
+}
+
+function request() {
+    let xhr = new XMLHttpRequest();
+
+    //captura de objetos
+    let r = Math.round((Math.random() * 99) + 1).toString();
+    // requisao da api fake 
+    xhr.open("GET", "https://jsonplaceholder.typicode.com/albums/" + r, true);
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === xhr.DONE) {
+            if (xhr.status === 200) {
+                //internet
+                setLog(new Log(true));
+            }
+            else {
+                //sem
+                setLog(new Log(false))
+            }
+        }
+    };
+
+    xhr.send(null);
+}
+function Log(online)
+{
+    this.ID = ("00000" + (document.getElementById("ul-logs").getElementsByTagName("li").length + 1)).slice(-5);
+    this.Data = new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString(),
+    this.Online = online
+}
+        </script>
+    </body>
+</html>
